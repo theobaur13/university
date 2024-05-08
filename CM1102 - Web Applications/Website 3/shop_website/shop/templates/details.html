@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Details</h1>
+<div class="container">
+<div class="box">
+    <img src="{{ url_for('static', filename='img/' + item.image_file) }}">
+    <p>{{ item.name }}</p>
+    <p>£{{ item.price }}</p>
+    <p>{{ item.description }}</p>
+    <p>{{ item.details }}</p>
+    <p>Ecological Damage: {{ item.eco }}/100</p>
+
+
+
+
+
+</div>
+</div>
+{% endblock content %} 

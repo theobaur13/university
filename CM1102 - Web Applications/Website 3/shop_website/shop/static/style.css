@@ -1,0 +1,299 @@
+
+/*
+* { background-color: rgb(58, 58, 58);
+    padding:0px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+*/
+
+h1 {color: cornsilk;
+    text-align: center;
+    background-color: rgb(233, 95, 95);
+    margin-top: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+h2 {color: cornsilk;
+    text-align: center;
+}
+
+h3 {color:cornsilk;
+    text-align: center;
+}
+
+
+p {color:cornsilk;
+}
+
+ 
+body {
+    background-color: rgb(58, 58, 58);
+    padding:0px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0px;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.box {color:cornsilk;
+    padding: 10px;
+    min-width:420px; 
+    min-height: 330px;
+    text-align: center;
+    display: inline-block;
+    /*border: 1px solid gray ;*/
+    border-radius: 3px;
+    background-color: rgb(83, 83, 83);
+    margin: 4px;
+    padding-bottom: 20px;
+}
+
+input[type=number] {background-color: rgb(58, 58, 58);
+    border: 2px solid cadetblue;
+    border-radius: 4px;
+    color: cornsilk; 
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+input[id=submit],input[id=reset],input[type=button]{background-color: rgb(58, 58, 58);
+    border: 2px solid rgba(95, 158, 160, 0);
+    border-radius: 5px;
+    color: cornsilk; 
+    
+}
+
+input[id=submit]:hover,input[id=reset]:hover,input[type=button]:hover{
+    transition: .3s ease;
+    background-color: rgba(233, 95, 95, 0);
+
+}
+
+nav, nav ul {background-color: cadetblue;}
+
+nav ul li{background-color: rgb(56, 116, 119);
+    color: cornsilk;}
+
+nav ul li:hover, nav ul li a:hover{
+    background-color: brown;
+    transition: .25s ease;
+    
+}
+
+nav {height: 70px;
+    justify-content: center;
+    display: flex;
+}
+
+
+nav ul {display: block;
+    float: left;
+    padding-left: 9px;  
+    
+}
+
+
+nav ul li {
+    float: left;
+    width: 200px;
+    padding: 10px 20px;
+    list-style: none;
+    margin-left: 5px;
+    font-weight: bold;
+    padding-left: 2px;
+    padding-right: 2px;
+    text-align: center;
+    border-radius: 3px;
+    
+    
+}
+nav ul li:hover {
+    border-radius: 10px;
+    
+}
+
+
+nav ul li a{
+    background-color: transparent;
+    text-decoration: none;
+    transition: .25s ease;
+    color: cornsilk;
+}
+
+a, a:visited, a:hover, a:active {
+    color: cornsilk;
+}
+
+.flash{
+    color: rgb(233, 95, 95);
+    
+}
+
+.flashes{
+    list-style-type: none;
+    text-align: center;
+    padding: 0px;
+}
+
+.sortby{
+    padding-left: 70px;
+}
+
+.homepageitems{
+    justify-content: left;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-left: 70px;
+}
+
+img {
+    /*max-width:230px;*/
+    max-height:230px;
+    width: auto;
+    height: auto;
+    border-radius: 3px;
+    
+  }
+
+#shop {
+    color: rgb(58, 58, 58);
+}
+
+select{
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+}
+
+.info{
+    background-color: rgb(58, 58, 58);
+    border-radius: 3px;
+    padding-bottom: 10px;
+    
+}
+
+input[type=submit] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 30px;
+    min-width: 120px;
+    margin-top: 3px;
+}
+
+input[type=submit]:hover {
+    background-color: rgb(83, 83, 83);
+    border-radius: 10px;
+    border: 2px solid rgb(58, 58, 58);
+    transition: .2s ease;
+}
+
+input[id=username] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 40px;
+}
+
+input[id=password] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 40px;
+}
+
+input[id=username_new] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 30px;
+    min-width: 270px;
+}
+
+input[id=password_new] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 30px;
+    min-width: 270px;
+}
+
+input[id=password_confirm] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 30px;
+    min-width: 270px;
+}
+
+#registerform {
+    text-align: left;
+}
+
+label {
+    width: 128px;
+    display: inline-block;
+}
+
+.cartitemcss {
+    border-radius: 3px; 
+    border: 2px solid rgb(58, 58, 58);
+    margin-bottom: 10px;
+}
+
+#checkoutcss {
+    background-color: rgb(233, 95, 95);
+    width: 200px;
+    
+    display: flex;
+    justify-content: center;
+    border-radius: 5px;
+    border: 2px solid rgb(58, 58, 58);
+}
+
+#checkoutcss:hover {
+    transition: .3s ease;
+    background-color: rgba(233, 95, 95, 0);
+    border: 2px solid rgb(83, 83, 83);
+}
+
+a {text-decoration: none;}
+
+input[id=name] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 40px;
+    min-width: 270px;
+}
+
+
+input[id=card_no] {
+    background-color: rgb(58, 58, 58);
+    border-radius: 5px;
+    border: 2px solid rgb(83, 83, 83);
+    color: cornsilk ;
+    min-height: 40px;
+    min-width: 270px;
+}
+
+#sort_typecss {
+    max-width: 60px;
+    margin-left: 5px;
+}

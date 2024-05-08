@@ -1,0 +1,104 @@
+* { background-color: rgb(58, 58, 58);
+    
+    
+    color: cornsilk;
+    }
+
+nav ul, nav ul li, nav ul li a, p, #alan, table {margin: 6px;}
+
+body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif }
+
+h1 {color: rgb(233, 95, 95);
+text-align: center;
+padding-top: 20px;
+padding-bottom: 10px;
+}
+
+h2 {color: cornsilk;
+    text-align: center;
+    padding: 20px;
+}
+
+h3 {color: cornsilk;}
+
+nav, nav ul {background-color: cadetblue;}
+
+nav ul li{background-color: rgb(56, 116, 119);
+    color: cornsilk;}
+
+nav ul li:hover, nav ul li a:hover{background-color: brown;
+transition: .25s ease;
+}
+
+nav {height: 70px;
+    
+    border-radius: 20px;
+    
+}
+
+
+nav ul {display: block;
+    float: left;
+    position: absolute;
+    padding-left: 9px;  
+    
+}
+
+
+nav ul li {
+    float: left;
+    width: 200px;
+    padding: 10px 20px;
+    list-style: none;
+    margin-left: 5px;
+    font-weight: bold;
+    padding-left: 2px;
+    padding-right: 2px;
+    text-align: center;
+    border-radius: 10px;
+    
+    
+}
+nav ul li:hover {
+    border-radius: 10px;
+    
+}
+
+
+nav ul li a{
+    background-color: transparent;
+    text-decoration: none;
+    transition: .25s ease;
+    color: cornsilk;
+}
+
+
+p {color:cornsilk;
+    background-color:rgb(58, 58, 58) ;
+    
+}
+
+#alan {text-align: center;
+    
+}
+
+table {color:cornsilk;
+float: right;
+
+}
+
+
+.text{
+    margin-left: 20px;
+    padding-left: 5px;
+    margin-right: 20px;
+    border: 5px double cornsilk ;
+    
+}
+
+.references{
+    margin-left: 20px;
+    padding-left: 5px;
+    margin-right: 20px;
+    border: 5px double cornsilk ;
+}

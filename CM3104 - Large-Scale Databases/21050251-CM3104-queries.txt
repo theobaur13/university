@@ -1,0 +1,1024 @@
+// Theodor Baur
+// 21050251
+// Note that commands are designed to be run seperately
+
+
+
+// Question 1
+
+
+
+// Part 1
+
+
+// command 1
+var dbA = db.getSiblingDB("database_A");
+var dbB = db.getSiblingDB("database_B");
+
+// command 2
+dbA.questions.find().forEach(function(question) {
+		var acceptedAnswer = dbA.answers.findOne({
+			id: question.accepted_answer_id
+		}); 
+
+		var relatedLastEditor = dbA.users.findOne({
+				id: question.last_editor_user_id
+		});
+
+		var relatedOwner = dbA.users.findOne({
+					id: question.owner_user_id
+		});
+
+		question.accepted_answer = acceptedAnswer;
+		question.last_editor = relatedLastEditor;
+		question.owner = relatedOwner;
+		
+		dbB.questions.insert(question);
+});
+
+//command 3
+dbA.answers.find().forEach(function(answer) {
+    var relatedQuestion = dbA.questions.findOne({
+        id: answer.parent_id
+    });
+	
+		var relatedLastEditor = dbA.users.findOne({
+				id: answer.last_editor_user_id
+		});
+
+		var relatedOwner = dbA.users.findOne({
+				id: answer.owner_user_id
+		});
+		
+		answer.parent_question = relatedQuestion;
+		answer.last_editor = relatedLastEditor;
+		answer.owner = relatedOwner;
+		
+    dbB.answers.insert(answer);
+});	
+
+//command 4
+dbA.users.find().forEach(function(user) {
+    dbB.users.insert(user);
+});
+
+//command 5
+dbA.badges.find().forEach(function(badge) {
+		var relatedUser = dbA.users.findOne({
+				id: badge.user_id
+		});
+
+		badge.user = relatedUser;
+
+    dbB.badges.insert(badge);
+});
+
+//command 6
+dbA.comments.find().forEach(function(comment) {
+		var relatedUser = dbA.users.findOne({
+				id: comment.user_id
+		});
+
+		var relatedPost = null;
+
+    var relatedPost = dbA.questions.findOne({
+        id: comment.post_id
+    });
+
+    if (!relatedPost) {
+        relatedPost = dbA.answers.findOne({
+            id: comment.post_id
+        });
+    }
+
+		comment.user = relatedUser;
+		comment.post = relatedPost;
+
+    dbB.comments.insert(comment);
+});
+
+
+// Part 2
+
+
+// i)
+
+// database_A
+dbA.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "user_id",
+      foreignField: "id",
+      as: "user",
+    },
+  },
+  {
+    $unwind: "$user",
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user.id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $match:
+      {
+        "questions.accepted_answer_id": {
+          $nin: [NaN, null],
+        },
+      },
+  },
+  {
+    $lookup: {
+      from: "answers",
+      localField: "questions.accepted_answer_id",
+      foreignField: "id",
+      as: "accepted_answer",
+    },
+  },
+  {
+    $unwind:
+      {
+        path: "$accepted_answer",
+        preserveNullAndEmptyArrays: true,
+      },
+  },
+  {
+    $project: {
+			_id : 0,
+      user_id: "$user.id",
+      user_display_name: "$user.display_name",
+      badge_name: "$name",
+      badge_date: "$date",
+      question_id: "$questions.id",
+      question_title: "$questions.title",
+      accepted_answer_id:
+        "$questions.accepted_answer_id",
+      answer_score:{$ifNull: ["$accepted_answer.score", null]},
+    },
+  },
+])
+
+//database_b
+dbB.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user.id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $match: {
+      "questions.accepted_answer_id": {
+        $nin: [NaN, null],
+      },
+    },
+  },
+  {
+    $project: {
+			_id : 0,
+      user_id: "$user.id",
+      user_display_name: "$user.display_name",
+      badge_name: "$name",
+      badge_date: "$date",
+      question_id: "$questions.id",
+      question_title: "$questions.title",
+      accepted_answer_id:
+        "$questions.accepted_answer_id",
+      answer_score:{$ifNull: ["$questions.accepted_answer.score", null]},
+    },
+  },
+])
+
+// ii
+
+//database_A
+dbA.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "user_id",
+      foreignField: "id",
+      as: "user",
+    },
+  },
+  {
+    $unwind: "$user",
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user_id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $group: {
+      _id: "$questions.accepted_answer_id",
+      accepted_answer_id: {
+        $first: "$questions.accepted_answer_id",
+      },
+      questions_id: {
+        $first: "$questions.id",
+      },
+      user_id: {
+        $first: "$user.id",
+      },
+    },
+  },
+  {
+    $match: {
+      accepted_answer_id: {
+        $nin: [NaN, null],
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "answers",
+      localField: "accepted_answer_id",
+      foreignField: "id",
+      as: "accepted_answer",
+    },
+  },
+  {
+    $unwind: {
+      path: "$accepted_answer",
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  {
+    $lookup: {
+      from: "comments",
+      localField: "accepted_answer_id",
+      foreignField: "post_id",
+      as: "accepted_answer_comments",
+    },
+  },
+  {
+    $unwind: "$accepted_answer_comments",
+  },
+  {
+    $project: {
+      _id: 0,
+      user_id: "$user_id",
+      question_id: "$questions_id",
+      accepted_answer_id: {$ifNull: ["$accepted_answer_id", null]},
+      comment_id: {$ifNull: ["$accepted_answer_comments.id", null]},
+    },
+  },
+])
+
+//database_B
+dbB.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user.id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $group: {
+      _id: "$questions.accepted_answer_id",
+      accepted_answer_id: {
+        $first: "$questions.accepted_answer_id",
+      },
+      question_id: {
+        $first: "$questions.id",
+      },
+      user_id: {
+        $first: "$user.id",
+      },
+    },
+  },
+  {
+    $match: {
+      accepted_answer_id: {
+        $nin: [NaN, null],
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "comments",
+      localField: "accepted_answer_id",
+      foreignField: "post_id",
+      as: "accepted_answer_comments",
+    },
+  },
+  {
+    $unwind: "$accepted_answer_comments",
+  },
+  {
+    $project: {
+      _id: 0,
+      user_id: "$user_id",
+      question_id: "$question_id",
+      accepted_answer_id: {$ifNull: ["$accepted_answer_id", null]},
+      comment_id: {$ifNull: ["$accepted_answer_comments.id", null]},
+    },
+  },
+])
+
+
+// Part 3
+
+
+// Query 2.i
+// database_A
+dbA.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "user_id",
+      foreignField: "id",
+      as: "user",
+    },
+  },
+  {
+    $unwind: "$user",
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user.id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $match:
+      {
+        "questions.accepted_answer_id": {
+          $nin: [NaN, null],
+        },
+      },
+  },
+  {
+    $lookup: {
+      from: "answers",
+      localField: "questions.accepted_answer_id",
+      foreignField: "id",
+      as: "accepted_answer",
+    },
+  },
+  {
+    $unwind:
+      {
+        path: "$accepted_answer",
+        preserveNullAndEmptyArrays: true,
+      },
+  },
+  {
+    $project: {
+			_id : 0,
+      user_id: "$user.id",
+      user_display_name: "$user.display_name",
+      badge_name: "$name",
+      badge_date: "$date",
+      question_id: "$questions.id",
+      question_title: "$questions.title",
+      accepted_answer_id:
+        "$questions.accepted_answer_id",
+      answer_score:{$ifNull: ["$accepted_answer.score", null]},
+    },
+  },
+]).explain('executionStats')
+
+// Query 2.i
+// database_b
+dbB.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user.id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $match: {
+      "questions.accepted_answer_id": {
+        $nin: [NaN, null],
+      },
+    },
+  },
+  {
+    $project: {
+			_id : 0,
+      user_id: "$user.id",
+      user_display_name: "$user.display_name",
+      badge_name: "$name",
+      badge_date: "$date",
+      question_id: "$questions.id",
+      question_title: "$questions.title",
+      accepted_answer_id:
+        "$questions.accepted_answer_id",
+      answer_score:{$ifNull: ["$questions.accepted_answer.score", null]},
+    },
+  },
+]).explain('executionStats')
+
+// Query 2.ii
+// database_a
+dbA.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "user_id",
+      foreignField: "id",
+      as: "user",
+    },
+  },
+  {
+    $unwind: "$user",
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user_id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $group: {
+      _id: "$questions.accepted_answer_id",
+      accepted_answer_id: {
+        $first: "$questions.accepted_answer_id",
+      },
+      questions_id: {
+        $first: "$questions.id",
+      },
+      user_id: {
+        $first: "$user.id",
+      },
+    },
+  },
+  {
+    $match: {
+      accepted_answer_id: {
+        $nin: [NaN, null],
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "answers",
+      localField: "accepted_answer_id",
+      foreignField: "id",
+      as: "accepted_answer",
+    },
+  },
+  {
+    $unwind: {
+      path: "$accepted_answer",
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+  {
+    $lookup: {
+      from: "comments",
+      localField: "accepted_answer_id",
+      foreignField: "post_id",
+      as: "accepted_answer_comments",
+    },
+  },
+  {
+    $unwind: "$accepted_answer_comments",
+  },
+  {
+    $project: {
+      _id: 0,
+      user_id: "$user_id",
+      question_id: "$questions_id",
+      accepted_answer_id: {$ifNull: ["$accepted_answer_id", null]},
+      comment_id: {$ifNull: ["$accepted_answer_comments.id", null]},
+    },
+  },
+]).explain('executionStats')
+
+// Query 2.ii
+// database_b
+dbB.badges.aggregate([
+  {
+    $match: {
+      name: "Nice Question",
+      date: {
+        $gte: ISODate("2020-01-01"),
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "questions",
+      localField: "user.id",
+      foreignField: "owner_user_id",
+      as: "questions",
+    },
+  },
+  {
+    $unwind: "$questions",
+  },
+  {
+    $group: {
+      _id: "$questions.accepted_answer_id",
+      accepted_answer_id: {
+        $first: "$questions.accepted_answer_id",
+      },
+      question_id: {
+        $first: "$questions.id",
+      },
+      user_id: {
+        $first: "$user.id",
+      },
+    },
+  },
+  {
+    $match: {
+      accepted_answer_id: {
+        $nin: [NaN, null],
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "comments",
+      localField: "accepted_answer_id",
+      foreignField: "post_id",
+      as: "accepted_answer_comments",
+    },
+  },
+  {
+    $unwind: "$accepted_answer_comments",
+  },
+  {
+    $project: {
+      _id: 0,
+      user_id: "$user_id",
+      question_id: "$question_id",
+      accepted_answer_id: {$ifNull: ["$accepted_answer_id", null]},
+      comment_id: {$ifNull: ["$accepted_answer_comments.id", null]},
+    },
+  },
+]).explain('executionStats')
+
+
+
+
+// Question 2
+
+
+
+// Setup
+
+
+// command 1 
+// create constraints
+CREATE CONSTRAINT FOR (a:Answer) REQUIRE a.id IS UNIQUE;
+CREATE CONSTRAINT FOR (b:Badge) REQUIRE b.id IS UNIQUE;
+CREATE CONSTRAINT FOR (c:Comment) REQUIRE c.id IS UNIQUE;
+CREATE CONSTRAINT FOR (q:Question) REQUIRE q.id IS UNIQUE;
+CREATE CONSTRAINT FOR (u:User) REQUIRE u.id IS UNIQUE;
+
+// command 2
+// load answer data
+:auto LOAD CSV WITH HEADERS FROM 'file:///answers.csv' AS row
+WITH toInteger(row.comment_count) AS comment_count,
+  apoc.date.parse(row.creation_date, "ms", "yyyy-MM-dd'T'HH:mm:ss") AS creation_date,
+  toInteger(row.id) AS answer_id,
+  apoc.date.parse(row.last_activity_date, "ms", "yyyy-MM-dd'T'HH:mm:ss") AS last_activity_date,
+  (CASE WHEN row.last_editor_user_id = "NaN" THEN NaN ELSE toInteger(row.last_editor_user_id ) END) AS last_editor_user_id,
+	toInteger(row.owner_user_id) AS owner_user_id,
+  toInteger(row.parent_id) AS parent_id,
+  toInteger(row.post_type_id) AS post_type_id,
+  toInteger(row.score) AS score
+MERGE (a:Answer {answerId: answer_id})
+SET a.comment_count = comment_count,
+  a.creation_date = creation_date,
+  a.last_activity_date = last_activity_date,
+	a.last_editor_user_id = last_editor_user_id,
+  a.owner_user_id = owner_user_id,
+  a.parent_id = parent_id,
+  a.post_type_id = post_type_id,
+  a.score = score
+RETURN count(a)
+
+// command 3
+// load badges data
+:auto LOAD CSV WITH HEADERS FROM 'file:///badges.csv' AS row
+WITH toInteger(row.class) AS class,
+	apoc.date.parse(row.date, "ms", "yyyy-MM-dd'T'HH:mm:ss") AS date,
+	toInteger(row.id) AS badge_id,
+	row.name AS name,
+	toBoolean(row.tag_based) AS tag_based,
+	toInteger(row.user_id) AS user_id
+MERGE (b:Badge {badgeId: badge_id})
+SET b.name = name,
+	b.date = date,
+	b.user_id = user_id,
+	b.class = class,
+	b.tag_based = tag_based
+RETURN count(b)
+
+// command 4
+// load comment data
+:auto LOAD CSV WITH HEADERS FROM 'file:///comments.csv' AS row
+WITH apoc.date.parse(row.creation_date, "ms", "yyyy-MM-dd'T'HH:mm:ss") AS creation_date,
+	toInteger(row.id) AS comment_id,
+	toInteger(row.post_id) AS post_id,
+	toInteger(row.score) AS score,
+	toInteger(row.user_id) AS user_id
+MERGE (c:Comment {commentId: comment_id})
+SET c.creation_date = creation_date,
+	c.post_id = post_id,
+	c.user_id = user_id,
+	c.score = score
+RETURN count(c)
+
+// command 5
+// load question data
+:auto LOAD CSV WITH HEADERS FROM 'file:///questions.csv' AS row
+WITH toInteger(row.accepted_answer_id) AS accepted_answer_id,
+	toInteger(row.answer_count) AS answer_count,
+	toInteger(row.comment_count) AS comment_count,
+	apoc.date.parse(row.creation_date, "ms", "yyyy-MM-dd'T'HH:mm:ss") AS creation_date,
+	(CASE WHEN row.favorite_count = "NaN" THEN NaN ELSE toInteger(row.favourite_count) END) AS favourite_count,
+	toInteger(row.id) AS question_id,
+	apoc.date.parse(row.last_activity_date, "ms", "yyyy-MM-dd'T'HH:mm:ss") AS last_activity_date,
+	(CASE WHEN row.last_editor_user_id = "NaN" THEN NaN ELSE toInteger(row.last_editor_user_id ) END) AS last_editor_user_id,
+	toInteger(row.owner_user_id) AS owner_user_id,
+	toInteger(row.post_type_id) AS post_type,
+	toInteger(row.score) AS score,
+	row.tags AS tags,
+	row.title AS title,
+	toInteger(row.view_count) AS view_count
+MERGE (q:Question {questionId: question_id})
+SET q.title = title,
+	q.accepted_answer_id = accepted_answer_id,
+	q.answer_count = answer_count,
+	q.comment_count = comment_count,
+	q.creation_date = creation_date,
+	q.favourite_count = favourite_count,
+	q.last_activity_date = last_activity_date,
+	q.last_editor_user_id = last_editor_user_id,
+	q.owner_user_id = owner_user_id,
+	q.post_type = post_type,
+	q.score = score,
+	q.tags = tags,
+	q.view_count = view_count
+RETURN count(q)
+
+// command 6
+// load user data
+	:auto LOAD CSV WITH HEADERS FROM 'file:///users.csv' AS row
+WITH row.about_me AS about_me,
+	(CASE WHEN row.age = "null" THEN null ELSE toInteger(row.age) END) AS age,
+	apoc.date.parse(row.creation_date, "ms", "yyyy-MM-dd'T'HH:mm:ss") AS creation_date,
+	row.display_name AS display_name,
+	toInteger(row.down_votes) AS down_votes,
+	toInteger(row.id) AS user_id,
+	apoc.date.parse(row.last_access_date, "ms", "yyyy-MM-dd'T'HH:mm:ss", "Europe/London") AS last_access_date,
+	(CASE WHEN row.location = "null" THEN null ELSE row.location END) AS location,
+	(CASE WHEN row.profile_image_url = "null" THEN null ELSE row.profile_image_url END) AS image,
+	toInteger(row.reputation) AS reputation,
+	toInteger(row.up_votes) AS up_votes,
+	toInteger(row.views) AS views,
+	row.website_url AS website
+MERGE (u:User {userId: user_id})
+SET 
+	u.display_name = display_name,
+	u.about_me = about_me,
+	u.age = age,
+	u.creation_date = creation_date,
+	u.last_access_date = last_access_date,
+	u.location = location,
+	u.reputation = reputation,
+	u.up_votes = up_votes,
+	u.down_votes = down_votes,
+	u.views = views,
+	u.website = website
+RETURN count(u)
+
+// command 7
+MATCH (u:User), (q:Question)
+WHERE u.userId = q.owner_user_id
+MERGE (u)-[:POSTS]->(q)
+
+// command 8
+MATCH (u:User), (a:Answer)
+WHERE u.userId = a.owner_user_id
+MERGE (u)-[:WROTE]->(a)
+
+// command 9
+MATCH (u:User), (b:Badge)
+WHERE u.userId = b.user_id
+MERGE (u)-[:EARNED]->(b)
+
+// command 10
+MATCH (u:User), (c:Comment)
+WHERE u.userId = c.user_id
+MERGE (u)-[:COMMENTED]->(c)
+
+// command 11
+MATCH (q:Question), (a:Answer)
+WHERE q.questionId = a.parent_id
+MERGE (q)-[:HAS_ANSWER]->(a)
+
+// command 12
+MATCH (q:Question), (c:Comment)
+WHERE q.questionId = c.post_id
+MERGE (q)-[:HAS_COMMENT]->(c)
+
+// command 13
+MATCH (a:Answer), (c:Comment)
+WHERE a.answerId = c.post_id
+MERGE (a)-[:HAS_COMMENT]->(c)
+
+// command 14
+CREATE INDEX user_id_index FOR (u:User) ON (u.userId);
+CREATE INDEX user_display_name_index FOR (u:User) ON (u.display_name);
+
+CREATE INDEX badge_name_index FOR (b:Badge) ON (b.name);
+CREATE INDEX badge_date_index FOR (b:Badge) ON (b.date);
+
+CREATE INDEX question_id_index FOR (q:Question) ON (q.questionId);
+CREATE INDEX question_title_index FOR (q:Question) ON (q.title);
+CREATE INDEX question_accepted_answer_id_index FOR (q:Question) ON (q.accepted_answer_id);
+
+CREATE INDEX comment_id_index FOR (c:Comment) ON (c.commentId);
+
+
+// Part 1
+
+
+// i)
+MATCH (u:User)-[r:EARNED]->(b:Badge {name: 'Fanatic'})
+RETURN u.userId AS user_id, u.display_name AS display_name, b.name AS badge_name, b.date AS date_awarded
+
+// ii)
+MATCH (u:User)-[r:EARNED]->(b:Badge {name: 'Nice Question'})
+WHERE b.date >= apoc.date.parse('2020-01-01', 'ms', 'yyyy-MM-dd')
+MATCH (u)-[:POSTS]->(q:Question)
+RETURN u.userId AS UserID, 
+       u.display_name AS DisplayName, 
+       b.name AS BadgeName, 
+       b.date AS BadgeAwardedDate, 
+       q.questionId AS QuestionID, 
+       q.title AS QuestionTitle
+
+// iii)
+MATCH (u:User)-[:EARNED]->(b:Badge {name: 'Nice Question'})
+WHERE b.date >= apoc.date.parse('2020-01-01', 'ms', 'yyyy-MM-dd')
+MATCH (u)-[:POSTS]->(q:Question)
+MATCH (q)-[:HAS_COMMENT]->(c:Comment)
+RETURN u.userId AS UserID, 
+       u.display_name AS DisplayName, 
+       b.name AS BadgeName, 
+       b.date AS BadgeAwardedDate, 
+       q.questionId AS QuestionID, 
+       q.title AS QuestionTitle,
+       c.commentId AS CommentID
+
+// iv)
+MATCH (u:User)-[:EARNED]->(b:Badge {name: 'Inquisitive'})
+MATCH (u)-[:POSTS]->(q:Question)
+WHERE q.accepted_answer_id IS NOT NULL
+RETURN u.userId AS UserID, 
+       u.display_name AS DisplayName, 
+       b.name AS BadgeName, 
+       q.questionId AS QuestionID, 
+       q.title AS QuestionTitle,
+       q.accepted_answer_id AS AcceptedAnswerID
+
+
+// Part 2
+
+
+// Query 1: iv
+PROFILE MATCH (u:User)-[:EARNED]->(b:Badge {name: 'Inquisitive'})
+MATCH (u)-[:POSTS]->(q:Question)
+WHERE q.accepted_answer_id IS NOT NULL
+RETURN u.userId AS UserID, 
+       u.display_name AS DisplayName, 
+       b.name AS BadgeName, 
+       q.questionId AS QuestionID, 
+       q.title AS QuestionTitle,
+       q.accepted_answer_id AS AcceptedAnswerID
+
+// Query 2: iii
+PROFILE MATCH (u:User)-[:EARNED]->(b:Badge {name: 'Nice Question'})
+WHERE b.date >= apoc.date.parse('2020-01-01', 'ms', 'yyyy-MM-dd')
+MATCH (u)-[:POSTS]->(q:Question)
+MATCH (q)-[:HAS_COMMENT]->(c:Comment)
+RETURN u.userId AS UserID, 
+       u.display_name AS DisplayName, 
+       b.name AS BadgeName, 
+       b.date AS BadgeAwardedDate, 
+       q.questionId AS QuestionID, 
+       q.title AS QuestionTitle,
+       c.commentId AS CommentID
+
+// Indexing Query
+// Command 1
+// Drop all indexes
+
+DROP INDEX user_id_index;
+DROP INDEX user_display_name_index;
+
+DROP INDEX badge_name_index;
+DROP INDEX badge_date_index;
+
+DROP INDEX question_id_index;
+DROP INDEX question_title_index;
+DROP INDEX question_accepted_answer_id_index;
+
+DROP INDEX comment_id_index;
+
+// Command 2
+// Profile Query 1
+
+PROFILE MATCH (u:User)-[:EARNED]->(b:Badge {name: 'Inquisitive'})
+MATCH (u)-[:POSTS]->(q:Question)
+WHERE q.accepted_answer_id IS NOT NULL
+RETURN u.userId AS UserID, 
+       u.display_name AS DisplayName, 
+       b.name AS BadgeName, 
+       q.questionId AS QuestionID, 
+       q.title AS QuestionTitle,
+       q.accepted_answer_id AS AcceptedAnswerID
+
+
+// Part 3
+
+
+// Command 1
+// create constraints
+CREATE CONSTRAINT FOR (c:Collection) REQUIRE c.id IS UNIQUE;
+
+// Command 2
+// create example collection node
+CREATE (c:Collection {
+    collectionId: toInteger(1), 
+    name: "Example Collection", 
+    description: "Questions that belong to the example collection", 
+    post_count: toInteger(1), 
+    creation_date: apoc.date.currentTimestamp(),
+    last_edited_date: apoc.date.currentTimestamp(),
+    owner_user_id: toInteger(0)
+})
+RETURN c;
+
+// Command 3
+// create example question node that is in a collection
+CREATE (q:Question {
+		questionId: toInteger(0), 
+		accepted_answer_id: null,
+		answer_count: toInteger(0),
+		comment_count: toInteger(0),
+		creation_date: apoc.date.currentTimestamp(), 
+		last_activity_date: apoc.date.currentTimestamp(),
+		owner_user_id: null,
+		post_type: null,
+		score: toInteger(0),
+		tags: null,
+		title: "Example Question",
+		view_count: toInteger(0),
+		collection_id: [toInteger(1)]
+})
+RETURN q;
+
+// Command 4
+// create example user node that owns a collection
+CREATE (u:User {
+		userId: toInteger(0), 
+		about_me: "I am an example user",
+		age: apoc.date.currentTimestamp(), 
+		creation_date: apoc.date.currentTimestamp(), 
+		display_name: "example_user",
+		down_votes: toInteger(0),
+		last_access_date: apoc.date.currentTimestamp(), 
+		location: null,
+		image: null,
+		reputation: toInteger(0),
+		up_votes: toInteger(0),
+		views: toInteger(0),
+		website: null
+})
+RETURN u;
+
+// Command 5
+// create example answer node that is in a collection
+CREATE (a:Answer {
+	answerId: toInteger(0),
+	comment_count: toInteger(0),
+	creation_date: apoc.date.currentTimestamp(),
+	last_activity_date: apoc.date.currentTimestamp(), 
+	owner_user_id: toInteger(0),
+	parent_id: toInteger(0),
+	post_type_id: toInteger(2),
+	score: toInteger(0),
+	collection_id: [toInteger(1)]
+})
+RETURN a;
+
+// Command 6
+MATCH (u:User), (c:Collection)
+WHERE u.userId = c.owner_user_id
+MERGE (u)-[:OWNER_OF]->(c)
+
+// Command 7
+MATCH (c:Collection), (q:Question)
+WHERE c.collectionId IN q.collection_id
+MERGE (c)-[:HAS_QUESTION]->(q)
+
+// Command 8
+MATCH (c:Collection), (a:Answer)
+WHERE c.collectionId IN a.collection_id
+MERGE (c)-[:CONTAINS_ANSWER]->(a)

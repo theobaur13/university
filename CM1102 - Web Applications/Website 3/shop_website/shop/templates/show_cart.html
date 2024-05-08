@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Cart</h1>
+<div class="container">
+    <div class="box">   
+    {% for item in cartItems %}
+    <div class="cartitemcss">
+        <h3>{{ item.name }}</h3>
+        <p>£<span class="item_price">{{ item.price }}</span></p>
+        <form action="{{ url_for('show_cart')}}", method="POST">
+            <input type="hidden" value="{{ item.id }}" name="item_id_remove">
+            <input type="submit" value="remove" class="remove">
+        </form>
+        <br>
+    </div>
+    {% endfor %}
+    
+    </div> 
+    
+</div>
+<h3>Total price: £<span id="total_price">{{ total }}</span></h3>
+<div class="container"><div id="checkoutcss"><a href="{{ url_for('checkout')}}" id="checkout"><h2>Checkout</h2></a></div></div>
+
+
+{% endblock content %}

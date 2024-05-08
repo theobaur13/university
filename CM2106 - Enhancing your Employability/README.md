@@ -1,0 +1,2 @@
+# CM2106: Enhancing your Employability
+In this module we completed various tasks designed to improve our professional development such as creating a CV and a LinkedIn article. We then performed a reflection on these tasks.

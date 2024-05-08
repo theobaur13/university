@@ -1,0 +1,2 @@
+# CM1208: Maths for Computer Science
+In this coursework, we implemented a simple document searching algorithm. It recieves a query from the user as well as a document corpus, converting both into a vector representation. It then calculates the angle between each vector to find the N closest documents.

@@ -1,0 +1,2 @@
+# CM1301 - Principles Tools and Techniques for Secure Software Engineering
+This module's coursework consisted of three seperate reflective portfolio entries. These entries were centred around three different articles.

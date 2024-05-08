@@ -1,0 +1,59 @@
+* { background-color: rgb(58, 58, 58);
+    padding:0px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+}
+
+h1 {color: rgb(233, 95, 95);
+text-align: center;
+}
+
+h2 {color: cornsilk;
+    text-align: center;
+}
+
+h3 {color:cornsilk;
+    text-align: center;
+}
+
+
+p {color:cornsilk;
+}
+
+
+body {display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.box {color:cornsilk;
+    width:420px;
+    height: 330px;
+    text-align: center;
+    display: inline-block;
+    border: 3px solid gray ;
+    border-radius: 10px;
+    margin-top:40px;
+}
+
+input[type=number] {background-color: rgb(58, 58, 58);
+    border: 2px solid cadetblue;
+    border-radius: 4px;
+    color: cornsilk; 
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+input[id=submit],input[id=reset],input[type=button]{background-color: rgb(58, 58, 58);
+    border: 2px solid cadetblue;
+    border-radius: 5px;
+    color: cornsilk; 
+    
+}
+
+input[id=submit]:hover,input[id=reset]:hover,input[type=button]:hover{
+    transition: .3s ease;
+    background-color: rgb(233, 95, 95);
+
+}

@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h1>Theo's Clothing</h1>
+    
+    <form method="POST">
+        <div class="sortby"><p>{{ form.sort_type.label(id="sort_typecss") }} {{ form.sort_type }}</p></div>
+    </form>
+    <div class="homepageitems">
+        {% for item in items %}
+        <div class="box">
+            <div class="gallery_item">
+                <img src="{{ url_for('static', filename='img/' + item.image_file) }}">
+
+
+                <div class="info">
+                <h3 class="item_name">{{ item.name }}</h3>
+                <p>£<span class="item_price">{{ item.price }}</span></p>
+                <p class="item_description">{{ item.description }}</p>
+                <form action="{{ url_for('details', item_id=item.id) }}">
+                    <input type="submit" value="More details" class="details">
+                </form>
+                <form action="{{ url_for('show_cart')}}", method="POST">
+                    <input type="hidden" value="{{ item.id }}" name="item_id">
+                    <input type="submit" value="Add to cart" class="add_to_cart">
+                </form>
+                </div>
+
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+{% endblock content %} 

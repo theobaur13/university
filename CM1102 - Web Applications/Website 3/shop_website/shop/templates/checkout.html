@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Checkout</h1>
+
+<div class="container">
+    <div class="box">  
+    <form method="POST" action="" class="checkout_form">
+        <div id="registerform">
+        {{ form.csrf_token }}
+
+        <p>{{ form.name.label }} {{ form.name(id="name", onclick="display_hints_name(); this.onclick=null;") }}</p>
+        <div id="nametips"></div>
+            
+        <p>{{ form.card_no.label }} {{ form.card_no(id="card_no", onclick="display_hints_card_no(); this.onclick=null;") }}</p>
+        <div id="card_notips"></div>
+        </div>
+        <input type="submit" value="Checkout" id="submit">
+    </form>
+    </div>
+    </div>
+
+<div>
+    {% for error in form.name.errors %}
+        <span style="color: red">[{{ error }}]</span>
+    {% endfor %}
+</div>
+<div>
+    {% for error in form.card_no.errors %}
+        <span style="color: red">[{{ error }}]</span>
+    {% endfor %}
+</div>
+
+<script>
+    function display_hints_name(){
+        newnode = document.createElement("p");
+        newnode.className = "tip";
+        newnode.innerHTML="Please only enter alphabetical characters for your name";
+        document.getElementById("nametips").appendChild(newnode);
+    }
+</script>
+
+<script>
+    function display_hints_card_no(){
+        newnode = document.createElement("p");
+        newnode.className = "tip";
+        newnode.innerHTML="Enter card number, must be 16 digits of numbers";
+        document.getElementById("card_notips").appendChild(newnode);
+    }
+</script>
+
+{% endblock content %} 

@@ -1,0 +1,39 @@
+<!--
+    Get year through form
+    Put into easter algorithm
+    Radio buttons to choose how it should be formatted
+    (dd/mm/yyyy)
+    (12^th april 2020)
+    add superscript
+    have CSS
+-->
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <meta charset="utf-8"/>
+    <title>Easter Algorithm</title>
+</head>
+<body>
+    <div class="box">
+    <h1>Easter Algorithm</h1>
+    <p>
+    <form method="POST" action="cgi-bin/easteralgo.py">
+        <h2>Year of Easter:</h2>
+        <input type="number" min="1" size="10" name="easternumber" required/>
+    </p>
+    <p>
+        <h3>How would you like your answer formatted?</h3>
+    <input type="radio" name="styleoption" id="number" value="number" required/> Numerically (dd/mm/yyyy)  <br>  
+    <input type="radio" name="styleoption" id="verbose" value="verbose"/> Verbosely (day month year) <br>
+    <input type="radio" name="styleoption" id="both" value="both"/> Both <br>
+    <input id="submit"  type="submit" name="submit" value="submit"/>
+    <input id="reset" type="reset" name="reset" value="reset">
+    </p>
+    </div>
+</body>
+</html>

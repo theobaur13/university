@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Shop</title>
+    <link rel=stylesheet type=text/css href="{{ url_for('static',filename='style.css')}}">
+</head>
+
+<body>
+    <div id="header">
+    </div>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('home') }}">Home</a>&nbsp</li>
+            <li><a href="{{ url_for('login') }}" id="login">Login</a></li>
+            <li><a href="{{ url_for('logout') }}" id="logout">Logout</a></li>
+            <li><a href="{{ url_for('register') }}" id="register">Register</a></li>
+            <li><a href="{{ url_for('show_cart') }}" id="show_cart">Cart</a></li>
+             
+        </ul>
+         
+    </nav>
+ 
+    <div class="flash">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %} 
+            <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+    {% block content %}
+    {% endblock %} 
+    <footer id="shop">shop</footer>
+</body>
+
+</html>
