@@ -1,0 +1,2 @@
+# CM3111 - Forensics
+In this module we conducted forensic analysis on a laptop hard drive image to find information regarding stolen doughnut recipes. We then produced both a technical and court report.
